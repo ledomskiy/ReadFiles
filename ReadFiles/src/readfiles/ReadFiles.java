@@ -22,24 +22,31 @@ import java.util.List;
  */
 public class ReadFiles {
     private String pathToListFiles;
-    private String[] listFiles;
+    private ArrayList<String> listFiles;
     
     ReadFiles(String pathToListFiles) {
         this.pathToListFiles = pathToListFiles;
     }
     
     //запуск подсчета количества цифр
-    private void run(){
-        try{
+    public void run() throws FileNotFoundException, IOException{
+        //try{
             listFiles = createListFiles();
-        }catch(Exception e){
+            Integer countEven = 0;
+            Integer countOdd = 0;
+            for(int i=0; i<listFiles.length; i++){
+                //calculateNumbersInFile(listFiles[i], countEven, countOdd);
+                System.out.println("pathToFile = " + listFiles[i]);
+                System.out.println("countEven = " + countEven);
+                System.out.println("countOdd = " + countOdd);
+            }
+        /*}catch(Exception e){
             System.out.println(e.getMessage());
-        }
+        }*/
     }
     
     //Создание массива путей до файлов
-    private String[] createListFiles() throws FileNotFoundException, IOException{
-        ArrayList<String> arraylistFiles = new ArrayList<>();
+    private void createListFiles() throws FileNotFoundException, IOException{
         String readedLine;
         InputStream fIS = new FileInputStream(pathToListFiles);
         BufferedReader bufferedReader;
@@ -47,16 +54,16 @@ public class ReadFiles {
         
         while((readedLine = bufferedReader.readLine()) != null){
             System.out.println(readedLine);
-            arraylistFiles.add(readedLine);
-        }
-        
-        return (String[])arraylistFiles.toArray();        
+            listFiles.add(readedLine);
+        }       
     }
     
     public void calculateNumbersInFile(String pathToFile,
                                        Integer countEvenOut, 
                                        Integer countOddOut)
     {
+        countEvenOut = 0;
+        countOddOut = 0;
         System.out.println("CountEven = " + countEvenOut);
         System.out.println("CountOdd = " + countOddOut);
     }
