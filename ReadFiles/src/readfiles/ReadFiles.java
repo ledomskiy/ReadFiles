@@ -21,26 +21,42 @@ import java.util.ArrayList;
 public class ReadFiles {
     private String pathToListFiles;
     private ArrayList<String> listFiles;
+    //индекс текущего обрабатываемого файла
+    private int currentIndexFile;
     
     ReadFiles(String pathToListFiles) {
-        this.listFiles = new ArrayList<String>();
+        this.listFiles = new ArrayList<>();
         this.pathToListFiles = pathToListFiles;
+        this.currentIndexFile = -1;
     }
     
     //запуск подсчета количества цифр
-    public void run(){
-        try{
-            createListFiles();
-            Integer countEven = 0;
-            Integer countOdd = 0;
-            for(int i=0; i<listFiles.size(); i++){
-                calculateNumbersInFile(listFiles.get(i), countEven, countOdd);
-                System.out.println("pathToFile = " + listFiles.get(i));
+    public void run() throws FileNotFoundException, IOException{
+        createListFiles();
+        Integer countEven = 0;
+        Integer countOdd = 0;
+        int currentIndexFile;
+        do{
+            currentIndexFile = getIndexNextFile();
+            if(currentIndexFile != -1){
+                calculateNumbersInFile(listFiles.get(currentIndexFile), countEven, countOdd);
+                System.out.println("pathToFile = " + listFiles.get(currentIndexFile));
                 System.out.println("countEven = " + countEven);
                 System.out.println("countOdd = " + countOdd);
             }
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+        }while(currentIndexFile != -1);
+    }
+    
+    /*Вычисляет индекс в массиве следующего файла для обработки
+     * возвращает индекс файла для обработки
+     * -1 если файлы закончились
+     */ 
+    private int getIndexNextFile(){
+        if(currentIndexFile < (listFiles.size()-1)){
+            currentIndexFile++;
+            return currentIndexFile;
+        }else{
+            return -1;
         }
     }
     
