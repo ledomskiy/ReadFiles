@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package readfiles;
+package DigitsCounterParallel;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -18,17 +18,22 @@ import java.util.ArrayList;
  *
  * @author lpa
  */
-public class ReadFiles {
+public class DigitsCounter {
+    //путь до файла со списком файлов для подсчета количества цифр
     private String pathToListFiles;
+    //максимальное количество параллельно работающих потоков
+    private int maxCountParallelThreads;
+    //список файлов для подсчета количества цифр
     private ArrayList<String> listFiles;
-    private int countEvenValues;
-    private int countOddValues;
+    private int countEvenDigits;
+    private int countOddDigits;
     //индекс текущего обрабатываемого файла
     private int currentIndexFile;
+    //список исключительных ситуаций, возникших во время выполнения
     private ArrayList<Exception> listExceptions;
     
-    public final class DigitsCounter extends Thread {
-        public DigitsCounter(){
+    public final class DigitsCounterThread extends Thread {
+        public DigitsCounterThread(){
             super();
             //запускаем поток на выполнение
             start();
@@ -71,18 +76,26 @@ public class ReadFiles {
             System.out.println("countEven = " + countEven);
             System.out.println("countOdd = " + countOdd);
             System.out.println();
-            
+            /*
+             * добавляем количество четных и нечетных чисел к количеству, 
+             * подсчитанному другими потоками
+             */
             addCountDigits(countEven, countOdd);
         }
     }
     
-    ReadFiles(String pathToListFiles) {
+    DigitsCounter(String pathToListFiles, int maxCountParallelThreads) {
         this.listFiles = new ArrayList<>();
         this.pathToListFiles = pathToListFiles;
         this.currentIndexFile = -1;
-        this.countEvenValues = 0;
-        this.countOddValues = 0;
+        this.countEvenDigits = 0;
+        this.countOddDigits = 0;
         this.listExceptions = new ArrayList<>();
+        if(maxCountParallelThreads>0){
+            this.maxCountParallelThreads = maxCountParallelThreads;
+        }else{
+            //throw new exception 
+        }
     }
     
     //запуск подсчета количества цифр
@@ -90,12 +103,12 @@ public class ReadFiles {
         createListFiles();
         
         for(int i=0; i<listFiles.size(); i++){
-            Thread digitCounter = new DigitsCounter();
+            Thread digitCounter = new DigitsCounterThread();
             digitCounter.join();
         }
 
-        System.out.println("countEvenValues = " + countEvenValues);
-        System.out.println("countOddValues = " + countOddValues);
+        System.out.println("countEvenValues = " + countEvenDigits);
+        System.out.println("countOddValues = " + countOddDigits);
     }
     
     /*
@@ -144,8 +157,8 @@ public class ReadFiles {
      * 
      */
     private synchronized void addCountDigits(int countEven, int countOdd){
-        countEvenValues += countEven;
-        countOddValues += countOdd;
+        countEvenDigits += countEven;
+        countOddDigits += countOdd;
     }
     
     
