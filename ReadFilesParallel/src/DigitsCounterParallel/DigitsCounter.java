@@ -23,6 +23,8 @@ public class DigitsCounter {
     private String pathToListFiles;
     //максимальное количество параллельно работающих потоков
     private int maxCountParallelThreads;
+    //текущее количество параллельно работающих потоков
+    private int currentCountParallelThreads;
     //список файлов для подсчета количества цифр
     private ArrayList<String> listFiles;
     private int countEvenDigits;
@@ -41,12 +43,15 @@ public class DigitsCounter {
         @Override
         public void run(){
             try{
+                threadRunned();
                 System.out.println("!!!!!!!!!!!!");
                 String pathToFile;
                 pathToFile = getPathToNextFile();
                 calculateNumbersInFile(pathToFile);
+                threadExit();
             }catch(Exception e){
                 exceptionThrown(e);
+                threadExit();
             }
         }
         
@@ -93,6 +98,7 @@ public class DigitsCounter {
         this.listExceptions = new ArrayList<>();
         if(maxCountParallelThreads>0){
             this.maxCountParallelThreads = maxCountParallelThreads;
+            this.currentCountParallelThreads = 0;
         }else{
             //throw new exception 
         }
@@ -102,13 +108,37 @@ public class DigitsCounter {
     public void run() throws FileNotFoundException, IOException, InterruptedException{
         createListFiles();
         
-        for(int i=0; i<listFiles.size(); i++){
-            Thread digitCounter = new DigitsCounterThread();
-            digitCounter.join();
+//        for(int i=0; i<listFiles.size(); i++){
+//            Thread digitCounter = new DigitsCounterThread();
+//            digitCounter.join();
+//        }
+        while(!processCompleted()){
+            //если не все файлы обработаны
+            if(currentIndexFile < (listFiles.size()-1)){
+                //если можно запустить еще один обработчик, запускаем его
+                if(currentCountParallelThreads < maxCountParallelThreads){
+                    new DigitsCounterThread();
+                }   
+            }
         }
 
         System.out.println("countEvenValues = " + countEvenDigits);
         System.out.println("countOddValues = " + countOddDigits);
+    }
+    
+    //если все файлы обработаны и нет запущенных потоков
+    private boolean processCompleted(){
+        if(currentIndexFile == listFiles.size() && //все файлы обработаны
+           currentCountParallelThreads == 0) //нет запущенных обработчиков
+        {
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    private boolean exceptionThrowned(){
+        return !listExceptions.isEmpty();
     }
     
     /*
@@ -116,6 +146,16 @@ public class DigitsCounter {
      */
     private void exceptionThrown(Exception e){
         listExceptions.add(e);
+    }
+    
+    //запущен на исполнение еще один поток
+    private synchronized void threadRunned(){
+        currentCountParallelThreads += 1;
+    }
+    
+    //поток завершил работу
+    private synchronized  void threadExit(){
+        currentCountParallelThreads -= 1;
     }
     
     /*Вычисляет индекс в массиве следующего файла для обработки

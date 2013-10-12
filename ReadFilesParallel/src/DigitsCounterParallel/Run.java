@@ -15,7 +15,7 @@ public class Run {
     public static void main(String Args[]){
         try{
             String pathToListFiles = "/home/lpa/NetBeansProjects/ReadFiles/listOfFiles.txt";
-            int maxCountParallelThreads = 1;
+            int maxCountParallelThreads = 2;
             DigitsCounter readFiles = new DigitsCounter(pathToListFiles,maxCountParallelThreads);
             readFiles.run();
         }catch(Exception e){
